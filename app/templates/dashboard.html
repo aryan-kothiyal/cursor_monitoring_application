@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="page-intro">
+  <h1>Dashboard</h1>
+  <p>High-level status of monitored servers. Metrics wiring arrives in later phases.</p>
+</section>
+
+<section class="placeholder-panel" aria-label="Dashboard overview placeholder">
+  <div class="placeholder-grid">
+    <article class="metric-tile">
+      <h2>Enabled servers</h2>
+      <p class="metric-value mono">—</p>
+      <p class="metric-hint">No inventory yet</p>
+    </article>
+    <article class="metric-tile">
+      <h2>Reporting</h2>
+      <p class="metric-value mono">—</p>
+      <p class="metric-hint">Agent ingest not connected</p>
+    </article>
+    <article class="metric-tile">
+      <h2>Attention</h2>
+      <p class="metric-value mono">0</p>
+      <p class="metric-hint">Placeholder — no alerts in scope</p>
+    </article>
+  </div>
+  <p class="panel-footnote">Static placeholder. Live overview lands in Phase 5.</p>
+</section>
+{% endblock %}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Monitor{% endblock %} · Demo Monitoring</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="{{ url_for('main.home') }}">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">Pulse<span>Watch</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}is-active{% endif %}">Dashboard</a>
+        <a href="{{ url_for('main.server_list') }}" class="{% if request.endpoint in ('main.server_list', 'main.server_detail') %}is-active{% endif %}">Servers</a>
+      </nav>
+      <p class="header-note">Read-only demo</p>
+    </header>
+
+    <main class="site-main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <p>Local demo monitoring · CPU, memory, network, ports</p>
+    </footer>
+  </div>
+</body>
+</html>

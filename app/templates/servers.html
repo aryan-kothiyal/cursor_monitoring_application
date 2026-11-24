@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Servers{% endblock %}
+{% block content %}
+<section class="page-intro">
+  <h1>Server list</h1>
+  <p>Registered hosts and enable/disable state. Inventory actions come in Phase 3.</p>
+</section>
+
+<section class="placeholder-panel" aria-label="Server inventory placeholder">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th scope="col">Host</th>
+        <th scope="col">SSH user</th>
+        <th scope="col">Port</th>
+        <th scope="col">Labels</th>
+        <th scope="col">State</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="5" class="empty-row">No servers registered yet. This table is static for Phase 0.</td>
+      </tr>
+      <tr class="sample-row" aria-hidden="true">
+        <td class="mono"><a href="{{ url_for('main.server_detail', server_id='demo-1') }}">demo-host-01</a></td>
+        <td class="mono">monitor</td>
+        <td class="mono">22</td>
+        <td>sample</td>
+        <td><span class="state-pill state-enabled">enabled</span></td>
+      </tr>
+      <tr class="sample-row" aria-hidden="true">
+        <td class="mono"><a href="{{ url_for('main.server_detail', server_id='demo-2') }}">10.0.0.12</a></td>
+        <td class="mono">ubuntu</td>
+        <td class="mono">22</td>
+        <td>lab</td>
+        <td><span class="state-pill state-disabled">disabled</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="panel-footnote">Sample rows link to the detail placeholder only — no host state is changed.</p>
+</section>
+{% endblock %}

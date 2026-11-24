@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Infrastructure visibility</p>
+  <h1>See live host health without SSH.</h1>
+  <p class="lede">
+    PulseWatch is a local demo dashboard for CPU, memory, network traffic,
+    and listening ports across registered Linux servers.
+  </p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="{{ url_for('main.dashboard') }}">Open dashboard</a>
+    <a class="btn btn-ghost" href="{{ url_for('main.server_list') }}">Browse servers</a>
+  </div>
+</section>
+
+<section class="feature-strip" aria-label="What you can view">
+  <div>
+    <h2>CPU</h2>
+    <p>Usage percent per host</p>
+  </div>
+  <div>
+    <h2>Memory</h2>
+    <p>Used vs total</p>
+  </div>
+  <div>
+    <h2>Network</h2>
+    <p>Traffic statistics</p>
+  </div>
+  <div>
+    <h2>Ports</h2>
+    <p>Listening only</p>
+  </div>
+</section>
+{% endblock %}
