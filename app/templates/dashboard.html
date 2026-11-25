@@ -1,29 +1,70 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<section class="page-intro">
-  <h1>Dashboard</h1>
-  <p>High-level status of monitored servers. Metrics wiring arrives in later phases.</p>
+<section class="page-intro toolbar-row">
+  <div>
+    <h1>Dashboard</h1>
+    <p>High-level status of enabled servers. Latest snapshot only — no history.</p>
+  </div>
+  <div class="toolbar">
+    <button type="button" class="btn btn-ghost" id="manual-refresh">Refresh</button>
+    <span class="refresh-hint mono" id="refresh-hint">auto 5s</span>
+  </div>
 </section>
 
-<section class="placeholder-panel" aria-label="Dashboard overview placeholder">
-  <div class="placeholder-grid">
+<section class="placeholder-panel" aria-label="Dashboard overview">
+  <div class="placeholder-grid" id="dashboard-summary">
     <article class="metric-tile">
       <h2>Enabled servers</h2>
-      <p class="metric-value mono">—</p>
-      <p class="metric-hint">No inventory yet</p>
+      <p class="metric-value mono" id="enabled-count">{{ enabled_count }}</p>
+      <p class="metric-hint">In inventory and monitoring</p>
     </article>
     <article class="metric-tile">
       <h2>Reporting</h2>
-      <p class="metric-value mono">—</p>
-      <p class="metric-hint">Agent ingest not connected</p>
+      <p class="metric-value mono" id="reporting-count">{{ reporting_count }}</p>
+      <p class="metric-hint">Hosts with a latest metrics snapshot</p>
     </article>
     <article class="metric-tile">
-      <h2>Attention</h2>
-      <p class="metric-value mono">0</p>
-      <p class="metric-hint">Placeholder — no alerts in scope</p>
+      <h2>Registered</h2>
+      <p class="metric-value mono">{{ servers|length }}</p>
+      <p class="metric-hint">Including disabled</p>
     </article>
   </div>
-  <p class="panel-footnote">Static placeholder. Live overview lands in Phase 5.</p>
+
+  <div class="card-list" id="dashboard-cards">
+    {% if cards %}
+      {% for item in cards %}
+      <article class="host-card">
+        <div class="host-card-head">
+          <h2 class="mono"><a href="{{ url_for('main.server_detail', server_id=item.server.id) }}">{{ item.server.hostname }}</a></h2>
+          {% if item.server.labels %}<span class="label-chip">{{ item.server.labels }}</span>{% endif %}
+        </div>
+        {% if item.metrics %}
+        <dl class="host-metrics">
+          <div><dt>CPU</dt><dd class="mono">{{ item.metrics.cpu_percent }}%</dd></div>
+          <div><dt>Memory</dt><dd class="mono">{{ item.metrics.memory.percent }}%</dd></div>
+          <div><dt>Net ↓/↑</dt><dd class="mono">{{ item.metrics.network.bytes_recv }} / {{ item.metrics.network.bytes_sent }}</dd></div>
+          <div><dt>Ports</dt><dd class="mono">{{ item.metrics.listening_ports|length }}</dd></div>
+        </dl>
+        {% else %}
+        <p class="metric-hint">Waiting for agent metrics…</p>
+        {% endif %}
+      </article>
+      {% endfor %}
+    {% else %}
+      <p class="empty-row">No enabled servers yet. <a href="{{ url_for('main.server_list') }}">Add a server</a>.</p>
+    {% endif %}
+  </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/refresh.js') }}" defer></script>
+<script>
+  window.PulseWatchRefresh = {
+    mode: "dashboard",
+    intervalMs: 5000,
+    endpoint: {{ url_for('main.dashboard_api')|tojson }}
+  };
+</script>
 {% endblock %}

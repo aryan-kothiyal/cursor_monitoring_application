@@ -130,11 +130,11 @@ Demo is complete when a user can:
 
 ## 10. Acceptance Checklist
 
-- [ ] Login works with hashed password for `admin`
-- [ ] Unauthenticated users cannot see monitoring pages
-- [ ] Can add, list, and disable servers
-- [ ] Dashboard overview shows registered servers
-- [ ] Server detail shows CPU, memory, network stats, listening ports
-- [ ] Metrics update every 5 seconds and via manual refresh
-- [ ] UI is read-only for host/metric data
-- [ ] Runs locally without Docker/HTTPS/alerts/history/RBAC
+- [x] Login works with hashed password for `admin`
+- [x] Unauthenticated users cannot see monitoring pages
+- [x] Can add, list, and disable servers
+- [x] Dashboard overview shows registered servers
+- [x] Server detail shows CPU, memory, network stats, listening ports
+- [x] Metrics update every 5 seconds and via manual refresh
+- [x] UI is read-only for host/metric data
+- [x] Runs locally without Docker/HTTPS/alerts/history/RBAC
