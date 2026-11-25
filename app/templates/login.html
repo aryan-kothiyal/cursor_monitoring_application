@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<section class="page-intro">
+  <h1>Sign in</h1>
+  <p>Demo admin access for the local monitoring UI.</p>
+</section>
+
+<section class="placeholder-panel auth-panel" aria-label="Login form">
+  {% if error %}
+  <p class="form-error" role="alert">{{ error }}</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('main.login', next=request.args.get('next')) }}" class="auth-form" autocomplete="username">
+    <label>
+      Username
+      <input type="text" name="username" required value="admin" autofocus>
+    </label>
+    <label>
+      Password
+      <input type="password" name="password" required autocomplete="current-password">
+    </label>
+    <button type="submit" class="btn btn-primary">Sign in</button>
+  </form>
+  <p class="panel-footnote">
+    PulseWatch local demo credentials:
+    username <span class="mono">admin</span> /
+    password <span class="mono">admin123</span>
+  </p>
+</section>
+{% endblock %}

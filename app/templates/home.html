@@ -9,8 +9,12 @@
     and listening ports across registered Linux servers.
   </p>
   <div class="cta-row">
+    {% if current_user %}
     <a class="btn btn-primary" href="{{ url_for('main.dashboard') }}">Open dashboard</a>
     <a class="btn btn-ghost" href="{{ url_for('main.server_list') }}">Browse servers</a>
+    {% else %}
+    <a class="btn btn-primary" href="{{ url_for('main.login') }}">Sign in</a>
+    {% endif %}
   </div>
 </section>
 

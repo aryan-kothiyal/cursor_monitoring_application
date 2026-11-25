@@ -3,10 +3,36 @@
 {% block content %}
 <section class="page-intro">
   <h1>Server list</h1>
-  <p>Registered hosts and enable/disable state. Inventory actions come in Phase 3.</p>
+  <p>Register Linux hosts to monitor. Inventory stores metadata only — no SSH passwords.</p>
 </section>
 
-<section class="placeholder-panel" aria-label="Server inventory placeholder">
+<section class="placeholder-panel" aria-label="Add server">
+  <h2 class="section-title">Add server</h2>
+  {% if error %}
+  <p class="form-error" role="alert">{{ error }}</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('main.server_list') }}" class="inventory-form">
+    <label>
+      Hostname / IP
+      <input type="text" name="hostname" required placeholder="localhost" value="{{ request.form.hostname or '' }}">
+    </label>
+    <label>
+      SSH username
+      <input type="text" name="ssh_username" required placeholder="monitor" value="{{ request.form.ssh_username or '' }}">
+    </label>
+    <label>
+      SSH port
+      <input type="number" name="ssh_port" min="1" max="65535" value="{{ request.form.ssh_port or 22 }}">
+    </label>
+    <label>
+      Labels (optional)
+      <input type="text" name="labels" placeholder="lab, demo" value="{{ request.form.labels or '' }}">
+    </label>
+    <button type="submit" class="btn btn-primary">Add server</button>
+  </form>
+</section>
+
+<section class="placeholder-panel" aria-label="Server inventory" style="margin-top: 1.25rem;">
   <table class="data-table">
     <thead>
       <tr>
@@ -15,28 +41,44 @@
         <th scope="col">Port</th>
         <th scope="col">Labels</th>
         <th scope="col">State</th>
+        <th scope="col">Action</th>
       </tr>
     </thead>
     <tbody>
+      {% if servers %}
+        {% for server in servers %}
+        <tr>
+          <td class="mono"><a href="{{ url_for('main.server_detail', server_id=server.id) }}">{{ server.hostname }}</a></td>
+          <td class="mono">{{ server.ssh_username }}</td>
+          <td class="mono">{{ server.ssh_port }}</td>
+          <td>{{ server.labels or "—" }}</td>
+          <td>
+            {% if server.enabled %}
+            <span class="state-pill state-enabled">enabled</span>
+            {% else %}
+            <span class="state-pill state-disabled">disabled</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if server.enabled %}
+            <form method="post" action="{{ url_for('main.disable_server', server_id=server.id) }}" class="inline-form">
+              <button type="submit" class="btn btn-ghost btn-small">Disable</button>
+            </form>
+            {% else %}
+            <form method="post" action="{{ url_for('main.enable_server', server_id=server.id) }}" class="inline-form">
+              <button type="submit" class="btn btn-ghost btn-small">Enable</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      {% else %}
       <tr>
-        <td colspan="5" class="empty-row">No servers registered yet. This table is static for Phase 0.</td>
+        <td colspan="6" class="empty-row">No servers registered yet.</td>
       </tr>
-      <tr class="sample-row" aria-hidden="true">
-        <td class="mono"><a href="{{ url_for('main.server_detail', server_id='demo-1') }}">demo-host-01</a></td>
-        <td class="mono">monitor</td>
-        <td class="mono">22</td>
-        <td>sample</td>
-        <td><span class="state-pill state-enabled">enabled</span></td>
-      </tr>
-      <tr class="sample-row" aria-hidden="true">
-        <td class="mono"><a href="{{ url_for('main.server_detail', server_id='demo-2') }}">10.0.0.12</a></td>
-        <td class="mono">ubuntu</td>
-        <td class="mono">22</td>
-        <td>lab</td>
-        <td><span class="state-pill state-disabled">disabled</span></td>
-      </tr>
+      {% endif %}
     </tbody>
   </table>
-  <p class="panel-footnote">Sample rows link to the detail placeholder only — no host state is changed.</p>
+  <p class="panel-footnote">Disable keeps the host in inventory and stops accepting agent metrics for it.</p>
 </section>
 {% endblock %}

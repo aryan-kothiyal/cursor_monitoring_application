@@ -2,16 +2,13 @@
 
 Local Flask demo that shows live Linux server metrics (CPU, memory, network, listening ports) in a read-only UI so teams do not need SSH for basic checks.
 
-See [docs/requirements.md](docs/requirements.md) and [docs/TODO.md](docs/TODO.md).
+Specs: [docs/requirements.md](docs/requirements.md) · [docs/TODO.md](docs/TODO.md)
 
-## Folder purpose
+**CI:** GitHub Actions runs lint (`ruff`) and `pytest` on every push/PR to `main`/`master`.
 
-| Path | Purpose |
-|------|---------|
-| `app/` | Flask application (routes, templates, static assets) |
-| `agent/` | Lightweight host metrics agent (later phases) |
-| `tests/` | Automated tests |
-| `docs/` | PRD, TODO, and project notes |
+## Out of scope
+
+Alerts, historical graphs, multi-user RBAC, HTTPS, Docker, advanced reporting.
 
 ## Setup
 
@@ -21,31 +18,78 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Run
+## Run locally (minimal)
 
-Debug stays off unless you set it explicitly:
+1. **Start Flask** (binds to localhost only). Use port **5070** if 5000 is already taken by another app on this machine:
 
 ```bash
+cd ~/Desktop/New_Monitoring_application
+source venv/bin/activate
 export FLASK_APP=app
 export FLASK_DEBUG=0
-flask run --host=127.0.0.1 --port=5000
+export INGEST_TOKEN=demo-ingest-token
+flask run --host=127.0.0.1 --port=5070
 ```
 
-Then open http://127.0.0.1:5000/
+2. Open http://127.0.0.1:5070/login (look for the **PulseWatch** brand) and sign in:
+   - Username: `admin`
+   - Password: `admin123` (**local demo only — do not reuse elsewhere**)
 
-## UI structure
+   If the page title/brand is not PulseWatch, you are on a different app — change the port.
 
-- **Base template** (`app/templates/base.html`) — shared header/nav/footer
-- **Styles** (`app/static/css/style.css`) — light, read-only monitoring look
-- Jinja auto-escaping is left on (default). Do not mark user-controlled values `|safe`.
+3. **Add a server** on `/servers` (example: hostname `localhost`, SSH user `monitor`, port `22`).
 
-## Pages (Phase 0 placeholders)
+4. **Start the agent** (hostname must match the inventory entry):
 
-| URL | Page |
-|-----|------|
-| `/` | Home |
-| `/dashboard` | Dashboard overview (static) |
-| `/servers` | Server list (static sample rows) |
-| `/servers/<server_id>` | Server detail (static metrics) |
+```bash
+export INGEST_TOKEN=demo-ingest-token
+export AGENT_HOSTNAME=localhost
+python agent/agent.py --server-url http://127.0.0.1:5070/api/ingest
+```
 
-No forms mutate host state yet. Sign-in and inventory arrive in later phases.
+5. Open **Dashboard** / **Server detail** — metrics auto-refresh every 5 seconds; use **Refresh** for a manual update.
+
+More agent detail: [agent/README.md](agent/README.md).
+
+## Auth notes
+
+- Single hardcoded admin user; password verified with a **Werkzeug hash** (`ADMIN_PASSWORD_HASH`).
+- Sessions use `HttpOnly` + `SameSite=Lax` cookies. Logout clears the session.
+- Change the hash:
+
+```bash
+python -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('YOUR_PASSWORD'))"
+```
+
+Set `ADMIN_PASSWORD_HASH` in the environment (see `.env.example`). Never commit plaintext passwords.
+
+## Security (demo)
+
+- Monitoring pages require login.
+- Agent ingest requires `X-Agent-Token`; unknown/disabled hosts are dropped.
+- Inventory stores hostname, SSH username/port, labels only — **no SSH passwords**.
+- Default bind: `127.0.0.1`. Jinja auto-escaping stays on.
+
+## Tests & lint
+
+```bash
+pytest -q
+ruff check app agent tests
+```
+
+## Pages
+
+| URL | Page | Auth |
+|-----|------|------|
+| `/` | Home | No |
+| `/login` | Sign in | No |
+| `/dashboard` | Overview of enabled servers | Yes |
+| `/servers` | Add / list / disable | Yes |
+| `/servers/<id>` | Live metrics detail | Yes |
+| `/api/ingest` | Agent metrics POST | Token |
+| `/api/metrics/<id>` | JSON metrics (refresh) | Yes |
+| `/api/dashboard` | JSON dashboard (refresh) | Yes |
+
+## Storage
+
+SQLite at `instance/monitoring.db` (gitignored): server inventory + **latest metrics snapshot only** (no history).
